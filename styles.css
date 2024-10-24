@@ -1,0 +1,30 @@
+/* Basic grid layout */
+#grid {
+    display: grid;
+    grid-template-columns: repeat(13, 40px); /* 13 columns, each 40px wide */
+    grid-template-rows: repeat(13, 40px); /* 13 rows, each 40px tall */
+    gap: 2px; /* Optional gap between cells */
+}
+
+/* Define styles for different cell types */
+.cell {
+    width: 40px;
+    height: 40px;
+}
+
+.outer-wall {
+    background-color: darkgray;
+}
+
+.inner-wall {
+    background-color: darkgray;
+}
+
+.destructible {
+    background-color: gray;
+}
+
+.floor {
+    background-color: olive;
+}
+
