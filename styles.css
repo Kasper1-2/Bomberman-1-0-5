@@ -1,15 +1,15 @@
-/* Basic grid layout */
 #grid {
     display: grid;
-    grid-template-columns: repeat(13, 40px); /* 13 columns, each 40px wide */
-    grid-template-rows: repeat(13, 40px); /* 13 rows, each 40px tall */
-    gap: 2px; /* Optional gap between cells */
+    grid-template-columns: repeat(13, 60px);
+    grid-template-rows: repeat(13, 60px); 
+    gap: 2px; 
+    margin: 0 auto;
+    border: 2px solid black;
 }
 
-/* Define styles for different cell types */
 .cell {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
 }
 
 .outer-wall {
@@ -21,10 +21,42 @@
 }
 
 .destructible {
-    background-color: gray;
+    background-color: rgba(242, 6, 6, 0.683);
 }
-
+.center {
+    background-color: gold;
+}
 .floor {
     background-color: olive;
 }
 
+.player1 {
+    background-color: rgb(0, 9, 128);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+}
+
+.player2 {
+    background-color: rgb(128, 9, 0);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+}
+
+
+.center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.bomb {
+    background-color: red;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    position: relative;
+    margin: auto;
+}
