@@ -7,6 +7,10 @@ let playerCount = 0;
 const gridWidth = 15;
 const gridHeight = 15;
 
+const explosionSound = new Audio('Assets/Sounds/20 Second Timer Bomb Countdown With Sound-[AudioTrimmer.com].mp3'); // Replace with your explosion sound file path
+explosionSound.volume = 0.5; // Set the volume for the explosion sound
+
+
 const gameMusic = new Audio('Assets/sounds/Swarm PvE Game Mode OST  Early Game Music.mp3'); // Replace with your file path
 gameMusic.volume = 0.5; // Set the volume
 gameMusic.loop = true; 
@@ -58,11 +62,11 @@ function generateGrid(width, height, playerData) {
                 row.push('F'); // Free space adjacent to spawn location
             } 
             // Randomly place destructible walls or free spaces
-            else if (Math.random() < 0.5) {
+            else if (Math.random() < 0.4) {
                 row.push('D'); // Destructible walls
             } else {
                 // Introduce indestructible walls at random positions
-                row.push(Math.random() < 0.3 ? 'I' : 'F'); // Indestructible walls 10% of the time
+                row.push(Math.random() < 0.6 ? 'I' : 'F'); // Indestructible walls 10% of the time
             }
         }
         layout.push(row);
@@ -119,6 +123,7 @@ function createBomb(playerIndex) {
     const bombX = player.x;
     const bombY = player.y;
 
+    // Check for valid bomb placement
     if (['O', 'D'].includes(gridLayout[bombY][bombX]) || player.hasActiveBomb) {
         console.log(`Player ${playerIndex + 1}: You can't place a bomb here!`);
         return;
@@ -133,51 +138,86 @@ function createBomb(playerIndex) {
     gridLayout[bombY][bombX] = 'B';
     playerBombs.push({ playerIndex, x: bombX, y: bombY, bomb });
 
+    // Use setTimeout to create a delay for the bomb explosion
     setTimeout(() => explodeBomb(playerIndex, bomb, bombX, bombY), Math.random() * (3000 - 1500) + 1500);
 }
 
 function explodeBomb(playerIndex, bomb, x, y) {
     console.log(`Player ${playerIndex + 1}'s bomb at (${x}, ${y}) exploded!`);
 
-    bomb.classList.add('explode');
+    explosionSound.currentTime = 0; // Reset the sound to the start
+    explosionSound.play();
+
+    // Register the explosion animation
+    registerExplosionAnimation(x, y);
+
+    // Create explosion radius element
+    const explosionRadius = document.createElement('div');
+    explosionRadius.classList.add('explosion-radius');
+    grid.children[y * gridLayout[0].length + x].appendChild(explosionRadius);
 
     setTimeout(() => {
         removeBomb(bomb);
         playerData[playerIndex].hasActiveBomb = false;
 
-        const directions = [
-            { x: 0, y: 0 },
-            { x: 0, y: -1 },
-            { x: 0, y: 1 },
-            { x: -1, y: 0 },
-            { x: 1, y: 0 }
-        ];
-
-        directions.forEach(direction => {
-            const targetX = x + direction.x;
-            const targetY = y + direction.y;
-
-            if (targetY >= 0 && targetY < gridLayout.length && targetX >= 0 && targetX < gridLayout[0].length) {
-                if (gridLayout[targetY][targetX] === 'D') {
-                    gridLayout[targetY][targetX] = 'F';
-                    updateGrid(targetX, targetY);
-                }
-
-                playerData.forEach((player, index) => {
-                    if (player.x === targetX && player.y === targetY) {
-                        player.health--;
-                        updateHeartsDisplay(index);
-                    }
-                });
-            }
-        });
-
-        const bombIndex = playerBombs.findIndex(b => b.bomb === bomb);
-        if (bombIndex !== -1) {
-            playerBombs.splice(bombIndex, 1);
-        }
+        // Handle explosion effects on adjacent cells
+        handleExplosionEffects(x, y);
     }, 500);
 }
+
+// Function to register explosion animation
+function registerExplosionAnimation(x, y) {
+    const explosionAnimation = document.createElement('div');
+    explosionAnimation.classList.add('explosion-animation');
+    grid.children[y * gridLayout[0].length + x].appendChild(explosionAnimation);
+
+    // Remove the animation after a short duration
+    setTimeout(() => removeExplosionAnimation(explosionAnimation), 500);
+}
+
+// Function to remove explosion animation
+function removeExplosionAnimation(animation) {
+    if (animation && animation.parentNode) {
+        animation.parentNode.removeChild(animation);
+    }
+}
+
+// Handle explosion effects on adjacent cells
+function handleExplosionEffects(x, y) {
+    const directions = [
+        { x: 0, y: 0 },  // Center
+        { x: 0, y: -1 }, // Up
+        { x: 0, y: 1 },  // Down
+        { x: -1, y: 0 }, // Left
+        { x: 1, y: 0 }   // Right
+    ];
+
+    directions.forEach(direction => {
+        const targetX = x + direction.x;
+        const targetY = y + direction.y;
+
+        if (targetY >= 0 && targetY < gridLayout.length && targetX >= 0 && targetX < gridLayout[0].length) {
+            // Handle destructible walls and player health
+            if (gridLayout[targetY][targetX] === 'D') {
+                gridLayout[targetY][targetX] = 'F';
+                updateGrid(targetX, targetY);
+            }
+
+            playerData.forEach((player, index) => {
+                if (player.x === targetX && player.y === targetY) {
+                    player.health--;
+                    updateHeartsDisplay(index);
+                }
+            });
+
+            // Create explosion radius for affected cells
+            const explosionCell = document.createElement('div');
+            explosionCell.classList.add('explosion-radius');
+            grid.children[targetY * gridLayout[0].length + targetX].appendChild(explosionCell);
+        }
+    });
+}
+
 
 function updateGrid(x, y) {
     const cellIndex = y * gridLayout[0].length + x;
@@ -252,7 +292,7 @@ document.addEventListener('keydown', (event) => {
         case 'ArrowRight': movePlayer(1, player2.x + 1, player2.y); break;
 
         case 'b': createBomb(0, player1.x, player1.y); break; 
-        case 'p': createBomb(1, player2.x, player2.y); break;
+        case '-': createBomb(1, player2.x, player2.y); break;
     }
 });
 
