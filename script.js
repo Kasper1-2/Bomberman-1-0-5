@@ -1,152 +1,245 @@
 const grid = document.getElementById('grid');
-const playerPositions = [];
+const menu = document.getElementById('menu');
+const startButton = document.getElementById('startButton');
+const playerBombs = [];
 let playerCount = 0;
 
-const layout = [
-    ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
-    ['O', 'P', 'F', 'D', 'D', 'X', 'D', 'D', 'D', 'D', 'D', 'D', 'O'],
-    ['O', 'F', 'X', 'D', 'X', 'D', 'X', 'D', 'D', 'X', 'D', 'F', 'O'],
-    ['O', 'D', 'D', 'D', 'X', 'D', 'D', 'X', 'D', 'D', 'D', 'D', 'O'],
-    ['O', 'X', 'D', 'D', 'X', 'D', 'D', 'X', 'D', 'X', 'D', 'F', 'O'],
-    ['O', 'D', 'D', 'D', 'D', 'X', 'D', 'D', 'D', 'D', 'D', 'F', 'O'],
-    ['O', 'D', 'X', 'F', 'D', 'D', 'C', 'F', 'D', 'D', 'X', 'F', 'O'],
-    ['O', 'F', 'D', 'D', 'X', 'D', 'C', 'D', 'D', 'X', 'D', 'D', 'O'],
-    ['O', 'X', 'F', 'D', 'D', 'X', 'D', 'D', 'D', 'D', 'X', 'D', 'O'],
-    ['O', 'D', 'D', 'D', 'X', 'D', 'D', 'D', 'X', 'D', 'D', 'F', 'O'],
-    ['O', 'D', 'X', 'D', 'D', 'F', 'X', 'D', 'F', 'D', 'X', 'F', 'O'],
-    ['O', 'F', 'F', 'F', 'X', 'D', 'D', 'D', 'X', 'D', 'F', 'P', 'O'],
-    ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+const gridWidth = 15;
+const gridHeight = 15;
+
+const gameMusic = new Audio('Assets/sounds/Swarm PvE Game Mode OST  Early Game Music.mp3'); // Replace with your file path
+gameMusic.volume = 0.5; // Set the volume
+gameMusic.loop = true; 
+
+// Player data
+const playerData = [
+    { id: 'player1', x: 1, y: 1, hasActiveBomb: false, health: 3 },
+    { id: 'player2', x: gridWidth - 2, y: gridHeight - 2, hasActiveBomb: false, health: 3 },
 ];
 
-layout.forEach((row, rowIndex) => {
-    row.forEach((cellType, collIndex) => {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        
-        switch (cellType) {
-            case 'C': cell.classList.add('center'); break;
-            case 'O': cell.classList.add('outer-wall'); break;
-            case 'X': cell.classList.add('inner-wall'); break;
-            case 'D': cell.classList.add('destructible'); break;
-            case 'F': cell.classList.add('floor'); break;
-            case 'P': 
-                const player = document.createElement('div');
-                player.classList.add('player', `player${++playerCount}`);
-                cell.appendChild(player);
-                playerPositions.push({ id: `player${playerCount}`, x: collIndex, y: rowIndex });
-                break;
+function startGame() {
+    menu.style.display = 'none'; 
+    grid.style.display = 'grid'; 
+    gridLayout = generateGrid(gridWidth, gridHeight, playerData); 
+    createGrid(); 
+    startGameTimer(); // Start the timer
+    gameMusic.play();
+}
+startButton.addEventListener('click', startGame);
+
+// Initialize grid layout after playerData is defined
+let gridLayout = generateGrid(gridWidth, gridHeight, playerData);
+
+function generateGrid(width, height, playerData) {
+    const layout = [];
+    
+    // Get spawn locations from player data
+    const spawnLocations = playerData.map(player => ({ x: player.x, y: player.y }));
+
+    for (let y = 0; y < height; y++) {
+        const row = [];
+        for (let x = 0; x < width; x++) {
+            // Check if the current cell is an outer wall
+            if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+                row.push('O'); // Outer walls
+            }
+            // Check if the current cell is a spawn location
+            else if (spawnLocations.some(loc => loc.x === x && loc.y === y)) {
+                row.push('F'); // Free space at spawn location
+            } 
+            // Check if the current cell is adjacent to any player spawn location
+            else if (spawnLocations.some(loc => {
+                return (loc.x === x && loc.y === y) || // Same position
+                       (loc.x === x && loc.y === y - 1) || // Above
+                       (loc.x === x && loc.y === y + 1) || // Below
+                       (loc.x === x - 1 && loc.y === y) || // Left
+                       (loc.x === x + 1 && loc.y === y);   // Right
+            })) {
+                row.push('F'); // Free space adjacent to spawn location
+            } 
+            // Randomly place destructible walls or free spaces
+            else if (Math.random() < 0.5) {
+                row.push('D'); // Destructible walls
+            } else {
+                // Introduce indestructible walls at random positions
+                row.push(Math.random() < 0.3 ? 'I' : 'F'); // Indestructible walls 10% of the time
+            }
         }
-
-        grid.appendChild(cell);
-    });
-});
-
-function updateGrid(x, y) {
-    const cellIndex = y * layout[0].length + x;
-    const cell = grid.children[cellIndex];
-    cell.innerHTML = '';
-
-    switch (layout[y][x]) {
-        case 'O': cell.classList.add('outer-wall'); break;
-        case 'X': cell.classList.add('inner-wall'); break;
-        case 'D': cell.classList.add('destructible'); break;
-        case 'F': cell.classList.add('floor'); break;
-        case 'P': 
-            const player = document.createElement('div');
-            player.classList.add('player');
-            cell.appendChild(player);
-            break;
+        layout.push(row);
     }
+    return layout;
 }
 
-const playerData = [
-    { id: 'player1', x: 0, y: 0, hasActiveBomb: false },
-    { id: 'player2', x: 0, y: 0, hasActiveBomb: false }
-];
+// Create grid cells in the DOM
+function createGrid() {
+    grid.innerHTML = ''; // Clear any existing grid cells
+    gridLayout.forEach((row, rowIndex) => {
+        row.forEach((cellType, colIndex) => {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
 
-const playerBombs = [];
-const maxBombs = 1;
+            switch (cellType) {
+                case 'O': cell.classList.add('outer-wall'); break;
+                case 'D': cell.classList.add('destructible'); break;
+                case 'F': cell.classList.add('floor'); break;
+                case 'I': cell.classList.add('indestructible'); break;
+            }
 
-function createBomb(playerIndex, x, y) {
+            grid.appendChild(cell);
+        });
+    });
+
+    // Create player elements and append them to the grid
+    playerData.forEach((player, index) => {
+        const playerElement = document.createElement('div');
+        playerElement.classList.add('player', `player${index + 1}`);
+        grid.children[player.y * gridLayout[0].length + player.x].appendChild(playerElement);
+    });
+}
+
+function startGameTimer() {
+    const timerElement = document.getElementById('timer');
+    let timeLeft = 180; // 3 minutes in seconds
+
+    const timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert("Game Over! Time's up!");
+        } else {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            timeLeft--;
+        }
+    }, 1000);
+}
+
+function createBomb(playerIndex) {
     const player = playerData[playerIndex];
+    const bombX = player.x;
+    const bombY = player.y;
 
-    if (player.hasActiveBomb) {
-        console.log(`Player ${playerIndex + 1}: You can only place one bomb at a time!`);
+    if (['O', 'D'].includes(gridLayout[bombY][bombX]) || player.hasActiveBomb) {
+        console.log(`Player ${playerIndex + 1}: You can't place a bomb here!`);
         return;
     }
 
     player.hasActiveBomb = true;
     const bomb = document.createElement('div');
     bomb.classList.add('bomb');
-    const cell = grid.children[y * layout[0].length + x];
+    const cell = grid.children[bombY * gridLayout[0].length + bombX];
     cell.appendChild(bomb);
-    layout[y][x] = 'B';
-    playerBombs.push({ playerIndex, x, y, bomb });
 
-    console.log(`Player ${playerIndex + 1} placed a bomb at (${x}, ${y})`);
+    gridLayout[bombY][bombX] = 'B';
+    playerBombs.push({ playerIndex, x: bombX, y: bombY, bomb });
 
-    setTimeout(() => explodeBomb(playerIndex, bomb, x, y), Math.random() * (3000 - 1500) + 1500);
+    setTimeout(() => explodeBomb(playerIndex, bomb, bombX, bombY), Math.random() * (3000 - 1500) + 1500);
 }
 
 function explodeBomb(playerIndex, bomb, x, y) {
     console.log(`Player ${playerIndex + 1}'s bomb at (${x}, ${y}) exploded!`);
-    removeBomb(bomb); 
 
-    const directions = [
-        { x: 0, y: -1 }, // Up
-        { x: 0, y: 1 },  // Down
-        { x: -1, y: 0 }, // Left
-        { x: 1, y: 0 }   // Right
-    ];
+    bomb.classList.add('explode');
 
-    directions.forEach(direction => {
-        const targetX = x + direction.x; 
-        const targetY = y + direction.y; 
+    setTimeout(() => {
+        removeBomb(bomb);
+        playerData[playerIndex].hasActiveBomb = false;
 
-        if (targetY >= 0 && targetY < layout.length && targetX >= 0 && targetX < layout[0].length) {
-            if (layout[targetY][targetX] === 'D') {
-                layout[targetY][targetX] = 'F'; 
-                updateGrid(targetX, targetY); 
+        const directions = [
+            { x: 0, y: 0 },
+            { x: 0, y: -1 },
+            { x: 0, y: 1 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 }
+        ];
+
+        directions.forEach(direction => {
+            const targetX = x + direction.x;
+            const targetY = y + direction.y;
+
+            if (targetY >= 0 && targetY < gridLayout.length && targetX >= 0 && targetX < gridLayout[0].length) {
+                if (gridLayout[targetY][targetX] === 'D') {
+                    gridLayout[targetY][targetX] = 'F';
+                    updateGrid(targetX, targetY);
+                }
+
+                playerData.forEach((player, index) => {
+                    if (player.x === targetX && player.y === targetY) {
+                        player.health--;
+                        updateHeartsDisplay(index);
+                    }
+                });
             }
-        }
-    });
+        });
 
-    playerData[playerIndex].hasActiveBomb = false;
-    console.log(`Player ${playerIndex + 1} can now place another bomb.`);
+        const bombIndex = playerBombs.findIndex(b => b.bomb === bomb);
+        if (bombIndex !== -1) {
+            playerBombs.splice(bombIndex, 1);
+        }
+    }, 500);
 }
 
+function updateGrid(x, y) {
+    const cellIndex = y * gridLayout[0].length + x;
+    const cell = grid.children[cellIndex];
+    cell.innerHTML = '';
+
+    switch (gridLayout[y][x]) {
+        case 'O': cell.classList.add('outer-wall'); break;
+        case 'D': cell.classList.add('destructible'); break;
+        case 'F': cell.classList.add('floor'); break;
+        case 'P': 
+            const playerElement = document.createElement('div');
+            playerElement.classList.add('player');
+            cell.appendChild(playerElement);
+            break;
+    }
+}
+
+// Function to remove bomb from the DOM
 function removeBomb(bomb) {
     if (bomb && bomb.parentNode) {
         bomb.parentNode.removeChild(bomb);
     }
 }
 
-function movePlayer(playerIndex, newX, newY) {
-    const playerDataEntry = playerPositions[playerIndex];
+// Function to update the hearts display
+function updateHeartsDisplay(playerIndex) {
+    const heartContainers = document.querySelectorAll('.hearts');
+    const hearts = heartContainers[playerIndex].children;
 
-    if (newY >= 0 && newY < layout.length && newX >= 0 && newX < layout[0].length) {
-        if (layout[newY][newX] === 'F' || layout[newY][newX] === 'C') {
+    for (let i = 0; i < hearts.length; i++) {
+        hearts[i].style.visibility = i < playerData[playerIndex].health ? 'visible' : 'hidden';
+    }
+}
+
+// Player movement function
+function movePlayer(playerIndex, newX, newY) {
+    const playerDataEntry = playerData[playerIndex];
+
+    if (newY >= 0 && newY < gridLayout.length && newX >= 0 && newX < gridLayout[0].length) {
+        if (gridLayout[newY][newX] === 'F' || gridLayout[newY][newX] === 'B') {
             const playerElement = grid.querySelector(`.${playerDataEntry.id}`);
-            layout[playerDataEntry.y][playerDataEntry.x] = 'F';
-            grid.children[playerDataEntry.y * layout[0].length + playerDataEntry.x].removeChild(playerElement);
+            gridLayout[playerDataEntry.y][playerDataEntry.x] = 'F';
+            grid.children[playerDataEntry.y * gridLayout[0].length + playerDataEntry.x].removeChild(playerElement);
 
             playerDataEntry.x = newX;
             playerDataEntry.y = newY;
-            grid.children[newY * layout[0].length + newX].appendChild(playerElement);
-            layout[newY][newX] = 'P';
-        } else if (layout[newY][newX] !== 'B') {
-            return;
+            gridLayout[newY][newX] = 'P';
+            grid.children[newY * gridLayout[0].length + newX].appendChild(playerElement);
         }
     }
 }
 
-document.addEventListener('keydown', (event) => {
-    const player1 = playerPositions[0];
-    const player2 = playerPositions[1];
 
+// Control player movement
+document.addEventListener('keydown', (event) => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(event.key)) {
         event.preventDefault();
     }
+
+    const player1 = playerData[0];
+    const player2 = playerData[1];
 
     switch (event.key) {
         case 'w': movePlayer(0, player1.x, player1.y - 1); break;
@@ -157,10 +250,13 @@ document.addEventListener('keydown', (event) => {
         case 'ArrowDown': movePlayer(1, player2.x, player2.y + 1); break;
         case 'ArrowLeft': movePlayer(1, player2.x - 1, player2.y); break;
         case 'ArrowRight': movePlayer(1, player2.x + 1, player2.y); break;
+
+        case 'b': createBomb(0, player1.x, player1.y); break; 
+        case 'p': createBomb(1, player2.x, player2.y); break;
     }
 });
 
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'z') createBomb(0, playerPositions[0].x, playerPositions[0].y); 
-    if (event.key === '-') createBomb(1, playerPositions[1].x, playerPositions[1].y);
-});
+
+
+
+
