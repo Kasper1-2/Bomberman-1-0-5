@@ -4,21 +4,28 @@ const startButton = document.getElementById('startButton');
 const playerBombs = [];
 let playerCount = 0;
 
+let gameStartTime; 
+let explosionTime;
+
+
 const gridWidth = 15;
 const gridHeight = 15;
 
-const explosionSound = new Audio('Assets/Sounds/20 Second Timer Bomb Countdown With Sound-[AudioTrimmer.com].mp3'); // Replace with your explosion sound file path
+const countdownSound = new Audio('./Assets/Sounds/placebomb.mp3'); 
+countdownSound.volume = 1,0;
+
+const explosionSound = new Audio('./Assets/Sounds/20 Second Timer Bomb Countdown With Sound-[AudioTrimmer.com].mp3'); // Replace with your explosion sound file path
 explosionSound.volume = 0.5; // Set the volume for the explosion sound
 
 
-const gameMusic = new Audio('Assets/sounds/Swarm PvE Game Mode OST  Early Game Music.mp3'); // Replace with your file path
+const gameMusic = new Audio('./Assets/sounds/Swarm PvE Game Mode OST  Early Game Music.mp3'); // Replace with your file path
 gameMusic.volume = 0.5; // Set the volume
 gameMusic.loop = true; 
 
 // Player data
 const playerData = [
-    { id: 'player1', x: 1, y: 1, hasActiveBomb: false, health: 3 },
-    { id: 'player2', x: gridWidth - 2, y: gridHeight - 2, hasActiveBomb: false, health: 3 },
+    { id: 'player1', x: 1, y: 1, hasActiveBomb: false, bombCount: 0, health: 3 },
+    { id: 'player2', x: gridWidth - 2, y: gridHeight - 2, hasActiveBomb: false, bombCount: 0, health: 3 },
 ];
 
 function startGame() {
@@ -26,7 +33,9 @@ function startGame() {
     grid.style.display = 'grid'; 
     gridLayout = generateGrid(gridWidth, gridHeight, playerData); 
     createGrid(); 
-    startGameTimer(); // Start the timer
+    startGameTimer(); 
+    gameStartTime = Date.now(); 
+    explosionTime = Math.random() * (3000 - 1500) + 1500
     gameMusic.play();
 }
 startButton.addEventListener('click', startGame);
@@ -62,11 +71,11 @@ function generateGrid(width, height, playerData) {
                 row.push('F'); // Free space adjacent to spawn location
             } 
             // Randomly place destructible walls or free spaces
-            else if (Math.random() < 0.4) {
+            else if (Math.random() < 0.5) {
                 row.push('D'); // Destructible walls
             } else {
                 // Introduce indestructible walls at random positions
-                row.push(Math.random() < 0.6 ? 'I' : 'F'); // Indestructible walls 10% of the time
+                row.push(Math.random() < 0.4 ? 'I' : 'F'); // Indestructible walls 10% of the time
             }
         }
         layout.push(row);
@@ -103,7 +112,7 @@ function createGrid() {
 
 function startGameTimer() {
     const timerElement = document.getElementById('timer');
-    let timeLeft = 180; // 3 minutes in seconds
+    let timeLeft = 120; 
 
     const timerInterval = setInterval(() => {
         if (timeLeft <= 0) {
@@ -123,13 +132,27 @@ function createBomb(playerIndex) {
     const bombX = player.x;
     const bombY = player.y;
 
-    // Check for valid bomb placement
+    // Check if the placement is valid
     if (['O', 'D'].includes(gridLayout[bombY][bombX]) || player.hasActiveBomb) {
         console.log(`Player ${playerIndex + 1}: You can't place a bomb here!`);
         return;
     }
 
+    // Check elapsed time
+    const elapsedTime = (Date.now() - gameStartTime) / 1000; // Get elapsed time in seconds
+
+    // Allow bomb placement if less than 3 bombs are currently placed
+    if (elapsedTime < 30 && player.bombCount >= 1) {
+        console.log(`Player ${playerIndex + 1}: You can only place 1 bomb before 30 seconds!`);
+        return;
+    } else if (elapsedTime >= 30 && player.bombCount >= 3) {
+        console.log(`Player ${playerIndex + 1}: You can only place up to 3 bombs!`);
+        return;
+    }
+
     player.hasActiveBomb = true;
+    player.bombCount++; // Increment the player's bomb count
+
     const bomb = document.createElement('div');
     bomb.classList.add('bomb');
     const cell = grid.children[bombY * gridLayout[0].length + bombX];
@@ -138,8 +161,25 @@ function createBomb(playerIndex) {
     gridLayout[bombY][bombX] = 'B';
     playerBombs.push({ playerIndex, x: bombX, y: bombY, bomb });
 
-    // Use setTimeout to create a delay for the bomb explosion
-    setTimeout(() => explodeBomb(playerIndex, bomb, bombX, bombY), Math.random() * (3000 - 1500) + 1500);
+    countdownSound.currentTime = 0; // Reset the sound to the start
+    countdownSound.loop = true; // Set the sound to loop
+    countdownSound.play();
+
+    // Set explosion time based on elapsed time
+    let explosionTime;
+    if (elapsedTime >= 60) {
+        explosionTime = 1000; // Set bomb explosion time to 1 second after 1 minute
+    } else {
+        explosionTime = Math.random() * (3000 - 1500) + 1500; // Random explosion time between 1.5s and 3s
+    }
+
+    setTimeout(() => {
+        explodeBomb(playerIndex, bomb, bombX, bombY);
+        countdownSound.pause(); // Stop the countdown sound when the bomb explodes
+        countdownSound.currentTime = 0; // Reset the countdown sound
+        player.bombCount--; // Decrement the bomb count when the bomb explodes
+        player.hasActiveBomb = false; // Reset active bomb status
+    }, explosionTime);
 }
 
 function explodeBomb(playerIndex, bomb, x, y) {
@@ -206,7 +246,7 @@ function handleExplosionEffects(x, y) {
             playerData.forEach((player, index) => {
                 if (player.x === targetX && player.y === targetY) {
                     player.health--;
-                    updateHeartsDisplay(index);
+                    updateHeartsDisplay(index); // Check health after decrementing
                 }
             });
 
@@ -217,7 +257,6 @@ function handleExplosionEffects(x, y) {
         }
     });
 }
-
 
 function updateGrid(x, y) {
     const cellIndex = y * gridLayout[0].length + x;
@@ -248,11 +287,24 @@ function updateHeartsDisplay(playerIndex) {
     const heartContainers = document.querySelectorAll('.hearts');
     const hearts = heartContainers[playerIndex].children;
 
+    // Update heart visibility based on player health
     for (let i = 0; i < hearts.length; i++) {
         hearts[i].style.visibility = i < playerData[playerIndex].health ? 'visible' : 'hidden';
     }
-}
 
+    // Check if the player has lost
+    if (playerData[playerIndex].health <= 0) {
+        alert(`Player ${playerIndex + 1} has lost!`);
+        endGame();
+    }
+
+    // Check if the other player has lost (player 2 if current is player 1)
+    const otherPlayerIndex = playerIndex === 0 ? 1 : 0;
+    if (playerData[otherPlayerIndex].health <= 0) {
+        alert(`Player ${otherPlayerIndex + 1} has won!`);
+        endGame();
+    }
+}
 // Player movement function
 function movePlayer(playerIndex, newX, newY) {
     const playerDataEntry = playerData[playerIndex];
@@ -271,8 +323,6 @@ function movePlayer(playerIndex, newX, newY) {
     }
 }
 
-
-// Control player movement
 document.addEventListener('keydown', (event) => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(event.key)) {
         event.preventDefault();
@@ -296,7 +346,10 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-
-
-
-
+function endGame() {
+    // Stop all game activity, e.g., clear intervals, stop music, etc.
+    clearInterval(timerInterval); // Assuming you have a timerInterval defined
+    gameMusic.pause(); // Stop the game music
+    menu.style.display = 'block'; // Show menu or game over screen
+    grid.style.display = 'none'; // Hide the grid
+}

@@ -32,7 +32,7 @@ body {
 
 .outer-wall {
     background-color: #333; /* Dark color for outer walls */
-    background-image: url(/Assets/images/walls.png);
+    background-image: url(./Assets/images/walls.png);
     background-size: cover;
     border: 0.5px solid;
 }
@@ -47,7 +47,7 @@ body {
 
 .indestructible {
     background-color: darkgray;
-    background-image: url(/Assets/images/walls.png);
+    background-image: url(./Assets/images/walls.png);
     background-position: center;
     background-size: cover;
     border: 0.5px solid;
@@ -55,7 +55,7 @@ body {
 
 .floor {
     background-color: #ecf0f1; /* Light gray for floor spaces */
-    background-image: url(/Assets/images/floor.png);
+    background-image: url(./Assets/images/floor.png);
     background-position: center;
     background-size: cover;
     border: 0.5px transparent;
@@ -108,7 +108,6 @@ body {
     width: 20px;
     height: 20px;
     margin: 0 2px;
-    visibility: hidden; /* Hidden by default */
 }
 
 .heart.visible {
@@ -155,11 +154,21 @@ body {
 }
 
 .player1-hearts {
-    left: 20px; /* Position Player 1's hearts to the left */
+    position: fixed; 
+    top: 0; 
+    right: 0; 
+    padding: 10px; 
+    z-index: 1000;
+    font-size: 25px;
 }
 
 .player2-hearts {
-    right: 20px; /* Position Player 2's hearts to the right */
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    padding: 10px; 
+    z-index: 1000; 
+    font-size: 25px;
 }
 
 .explosion-animation {
@@ -171,7 +180,29 @@ body {
     left: 0;
     pointer-events: none; /* Allow clicks to go through */
     z-index: 1; /* Make sure it's above other elements */
-    background-image: url(/Assets/images/explosion.png);
+    background-image: url(./Assets/images/explosion.png);
     background-size: cover;
 }
 
+.result-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 24px;
+    border-radius: 10px;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+
+.hidden {
+    display: none;
+}
+
+.npc {
+    background-image: url(./Assets/images/Screenshot_2024-10-30_at_14.30.52-removebg-preview.png);
+    background-size: cover;
+}
