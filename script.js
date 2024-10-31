@@ -330,7 +330,7 @@ function movePlayer(playerIndex, newX, newY) {
     const playerDataEntry = playerData[playerIndex];
 
     if (newY >= 0 && newY < gridLayout.length && newX >= 0 && newX < gridLayout[0].length) {
-        if (gridLayout[newY][newX] === 'F') {
+        if (gridLayout[newY][newX] === 'F') { // Ensure players cannot move onto bombs
             const playerElement = grid.querySelector(`.${playerDataEntry.id}`);
             gridLayout[playerDataEntry.y][playerDataEntry.x] = 'F';
             grid.children[playerDataEntry.y * gridLayout[0].length + playerDataEntry.x].removeChild(playerElement);
