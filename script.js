@@ -18,7 +18,7 @@ const explosionSound = new Audio('./Assets/Sounds/20 Second Timer Bomb Countdown
 explosionSound.volume = 0.5; 
 
 
-const gameMusic = new Audio('./Assets/sounds/Swarm PvE Game Mode OST  Early Game Music.mp3'); 
+const gameMusic = new Audio('./Assets/Sounds/soundtrack.mp3'); 
 gameMusic.volume = 0.5; 
 gameMusic.loop = true; 
 
