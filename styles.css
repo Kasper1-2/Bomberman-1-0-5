@@ -21,6 +21,7 @@ body {
     grid-template-rows: repeat(15, 45px);
     height: 750px; /* Ensure height is set */
     width: 750px;  /* Ensure width is set */
+    z-index: 1;
 }
 
 .cell {
@@ -28,6 +29,7 @@ body {
     width: 45px;  /* Match the grid size */
     height: 45px; /* Match the grid size */
     border: 0.5px transparent;
+    z-index: 2;
 }
 
 .outer-wall {
@@ -66,6 +68,7 @@ body {
     height: 100%;
     background-color: #3498db; /* Blue color for players */
     position: relative; /* Required for positioning */
+    z-index: 5;
 }
 
 .player1 {
@@ -85,24 +88,50 @@ body {
 }
 
 .bomb {
-    width: 40px;  /* Increase size */
-    height: 40px; /* Increase size */
+    width: 40px;  
+    height: 40px; 
     position: relative; 
     left: 50%; 
     top: 50%;  
     transform: translate(-50%, -50%); 
     border-radius: 50%; 
     background-image: url(./Assets/images/bomba.gif); 
-    background-size: contain; /* Try contain if cover doesn't work */
+    background-size: contain; 
     background-repeat: no-repeat; 
-    background-position: center; /* Center the image */
+    background-position: center; 
+    z-index: 5;
 }
 
 
-/* Hearts display for player health (if needed) */
+/* Hearts display for player health */
+.player-container {
+    display: flex;
+    justify-content: space-around; /* Distribute space evenly between players */
+    margin-top: 20px; /* Space above the player containers */
+    text-align: center; /* Center align text within each player info container */
+}
+
+.player1-info {
+    position: absolute;
+    top: 20px; /* Distance from the top */
+    left: 20px; /* Distance from the left */
+    z-index: 10; /* Ensure it is on top */
+    color: white; /* Color for the hearts and scores */
+    font-size: 20px; 
+}
+
+.player2-info {
+    position: absolute;
+    top: 20px; /* Distance from the top */
+    right: 20px; /* Distance from the left */
+    z-index: 10; /* Ensure it is on top */
+    color: white; /* Color for the hearts and scores */
+    font-size: 20px; 
+}
 .hearts {
     display: flex;
-    margin: 10px 0;
+    justify-content: center; /* Center the hearts */
+    margin: 10px 0; /* Space between hearts and score */
 }
 
 .heart {
@@ -142,6 +171,7 @@ body {
 
 .explode {
     animation: explode 0.5s ease-out forwards; /* Play animation for 0.5 seconds */
+    z-index: 5;
 }
 
 #timer {
@@ -155,20 +185,10 @@ body {
 }
 
 .player1-hearts {
-    position: fixed; 
-    top: 0; 
-    right: 0; 
-    padding: 10px; 
-    z-index: 1000;
     font-size: 25px;
 }
 
 .player2-hearts {
-    position: fixed; 
-    top: 0; 
-    left: 0;
-    padding: 10px; 
-    z-index: 1000; 
     font-size: 25px;
 }
 
@@ -177,12 +197,13 @@ body {
     width: 75px;
     height: 75px;
     border-radius: 50%;
-    top: 0;
-    left: 0;
-    pointer-events: none; /* Allow clicks to go through */
-    z-index: 1; /* Make sure it's above other elements */
+    top: 50%; 
+    left: 50%; 
+    z-index: 10; 
     background-image: url(./Assets/images/explosion.png);
     background-size: cover;
+    background-repeat: no-repeat;
+    transform: translate(-50%, -50%); 
 }
 
 .result-message {
@@ -203,7 +224,3 @@ body {
     display: none;
 }
 
-.npc {
-    background-image: url(./Assets/images/Screenshot_2024-10-30_at_14.30.52-removebg-preview.png);
-    background-size: cover;
-}

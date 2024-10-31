@@ -3,6 +3,15 @@ const menu = document.getElementById('menu');
 const startButton = document.getElementById('startButton');
 const playerBombs = [];
 let playerCount = 0;
+const bombPositions = new Set(); 
+
+document.getElementById('startButton').addEventListener('click', function() {
+    document.querySelector('.player1-info').classList.remove('hidden');
+    document.querySelector('.player2-info').classList.remove('hidden');
+    
+    document.getElementById('menu').style.display = 'none';
+    
+});
 
 let gameStartTime; 
 let explosionTime;
@@ -11,6 +20,8 @@ let explosionTime;
 const gridWidth = 15;
 const gridHeight = 15;
 
+
+
 const countdownSound = new Audio('./Assets/Sounds/placebomb.mp3'); 
 countdownSound.volume = 1,0;
 
@@ -18,14 +29,14 @@ const explosionSound = new Audio('./Assets/Sounds/20 Second Timer Bomb Countdown
 explosionSound.volume = 0.5; 
 
 
-const gameMusic = new Audio('./Assets/Sounds/soundtrack.mp3'); 
+const gameMusic = new Audio('Assets/Sounds/soundtrackcillo.mp3'); 
 gameMusic.volume = 0.5; 
 gameMusic.loop = true; 
 
 // Player data
 const playerData = [
-    { id: 'player1', x: 1, y: 1, hasActiveBomb: false, bombCount: 0, health: 3 },
-    { id: 'player2', x: gridWidth - 2, y: gridHeight - 2, hasActiveBomb: false, bombCount: 0, health: 3 },
+    { id: 'player1', x: 1, y: 1, hasActiveBomb: false, bombCount: 0, score: 0, health: 3 },
+    { id: 'player2', x: gridWidth - 2, y: gridHeight - 2, hasActiveBomb: false, bombCount: 0, score: 0, health: 3 },
 ];
 
 function startGame() {
@@ -239,6 +250,14 @@ function handleExplosionEffects(x, y) {
         if (targetY >= 0 && targetY < gridLayout.length && targetX >= 0 && targetX < gridLayout[0].length) {
             // Handle destructible walls and player health
             if (gridLayout[targetY][targetX] === 'D') {
+                // Find out which player caused the explosion
+                const playerIndex = playerBombs.find(b => b.x === x && b.y === y)?.playerIndex;
+                if (playerIndex !== undefined) {
+                    // Increment the player's score
+                    playerData[playerIndex].score++;
+                    updateScoreDisplay(playerIndex); // Update the score display
+                }
+                
                 gridLayout[targetY][targetX] = 'F';
                 updateGrid(targetX, targetY);
             }
@@ -311,7 +330,7 @@ function movePlayer(playerIndex, newX, newY) {
     const playerDataEntry = playerData[playerIndex];
 
     if (newY >= 0 && newY < gridLayout.length && newX >= 0 && newX < gridLayout[0].length) {
-        if (gridLayout[newY][newX] === 'F' || gridLayout[newY][newX] === 'B') {
+        if (gridLayout[newY][newX] === 'F') {
             const playerElement = grid.querySelector(`.${playerDataEntry.id}`);
             gridLayout[playerDataEntry.y][playerDataEntry.x] = 'F';
             grid.children[playerDataEntry.y * gridLayout[0].length + playerDataEntry.x].removeChild(playerElement);
@@ -347,9 +366,46 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+function updateScoreDisplay(playerIndex) {
+    const scoreElement = document.getElementById(`score${playerIndex + 1}`);
+    scoreElement.textContent = playerData[playerIndex].score;
+}
+
+
 function endGame() {
-    clearInterval(timerInterval); 
+    const player1Health = playerData[0].health;
+    const player2Health = playerData[1].health;
+    const player1Score = playerData[0].score;
+    const player2Score = playerData[1].score;
+
+    if (player1Health <= 0 && player2Health <= 0) {
+        alert("It's a tie! Both players are out of hearts!");
+    } else if (player1Health <= 0) {
+        alert('Player 2 wins by default (Player 1 is eliminated)!');
+    } else if (player2Health <= 0) {
+        alert('Player 1 wins by default (Player 2 is eliminated)!');
+    } else if (player1Health === player2Health) {
+        // If both players have the same health, use score as tiebreaker
+        if (player1Score > player2Score) {
+            alert('Player 1 wins with a score of ' + player1Score + '!');
+        } else if (player2Score > player1Score) {
+            alert('Player 2 wins with a score of ' + player2Score + '!');
+        } else {
+            alert("It's a tie! Both players scored " + player1Score + "!");
+        }
+    } else if (player1Health > player2Health) {
+        alert('Player 1 wins with ' + player1Health + ' hearts remaining!');
+    } else {
+        alert('Player 2 wins with ' + player2Health + ' hearts remaining!');
+    }
+
+
+
+    // Stop the game
+    clearInterval(timerInterval); // Clear the timer
     gameMusic.pause(); 
     menu.style.display = 'block'; 
     grid.style.display = 'none'; 
+
+    resetGame(); 
 }
