@@ -26,11 +26,11 @@ const countdownSound = new Audio('./Assets/Sounds/placebomb.mp3');
 countdownSound.volume = 1,0;
 
 const explosionSound = new Audio('./Assets/Sounds/20 Second Timer Bomb Countdown With Sound-[AudioTrimmer.com].mp3'); 
-explosionSound.volume = 1.0; 
+explosionSound.volume = 0.8; 
 
 
 const gameMusic = new Audio('Assets/Sounds/soundtrackcillo.mp3'); 
-gameMusic.volume = 0.1; 
+gameMusic.volume = 0.5; 
 gameMusic.loop = true; 
 
 // Player data
@@ -122,7 +122,7 @@ function createGrid() {
 
 function startGameTimer() {
     const timerElement = document.getElementById('timer');
-    let timeLeft = 90; 
+    let timeLeft = 120; 
 
     const timerInterval = setInterval(() => {
         if (timeLeft <= 0) {
