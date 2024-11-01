@@ -146,6 +146,8 @@ body {
 
 .menu {
     text-align: center;
+    justify-content: center;
+    display: flex;
 }
 
 #startButton {

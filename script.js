@@ -122,7 +122,7 @@ function createGrid() {
 
 function startGameTimer() {
     const timerElement = document.getElementById('timer');
-    let timeLeft = 120; 
+    let timeLeft = 90; 
 
     const timerInterval = setInterval(() => {
         if (timeLeft <= 0) {
