@@ -116,7 +116,7 @@ body {
     top: 20px; /* Distance from the top */
     left: 20px; /* Distance from the left */
     z-index: 10; /* Ensure it is on top */
-    color: white; /* Color for the hearts and scores */
+    color: blue; /* Color for the hearts and scores */
     font-size: 20px; 
 }
 
@@ -125,7 +125,7 @@ body {
     top: 20px; /* Distance from the top */
     right: 20px; /* Distance from the left */
     z-index: 10; /* Ensure it is on top */
-    color: white; /* Color for the hearts and scores */
+    color: red; /* Color for the hearts and scores */
     font-size: 20px; 
 }
 .hearts {
