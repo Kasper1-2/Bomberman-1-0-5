@@ -17,23 +17,23 @@ body {
 
 #grid {
     display: grid;
-    grid-template-columns: repeat(15, 45px); /* Adjust the size of each cell */
+    grid-template-columns: repeat(15, 45px); 
     grid-template-rows: repeat(15, 45px);
-    height: 750px; /* Ensure height is set */
-    width: 750px;  /* Ensure width is set */
+    height: 750px; 
+    width: 750px;  
     z-index: 1;
 }
 
 .cell {
-    position: relative; /* Ensures absolute positioning of children (like bombs) is relative to the cell */
-    width: 45px;  /* Match the grid size */
-    height: 45px; /* Match the grid size */
+    position: relative; 
+    width: 45px;  
+    height: 45px; 
     border: 0.5px transparent;
     z-index: 2;
 }
 
 .outer-wall {
-    background-color: #333; /* Dark color for outer walls */
+    background-color: #333; 
     background-image: url(./Assets/images/walls.png);
     background-size: cover;
     border: 0.5px solid;
@@ -67,7 +67,7 @@ body {
     width: 100%;
     height: 100%;
     background-color: #3498db; /* Blue color for players */
-    position: relative; /* Required for positioning */
+    position: relative; 
     z-index: 5;
 }
 
@@ -106,32 +106,32 @@ body {
 /* Hearts display for player health */
 .player-container {
     display: flex;
-    justify-content: space-around; /* Distribute space evenly between players */
-    margin-top: 20px; /* Space above the player containers */
-    text-align: center; /* Center align text within each player info container */
+    justify-content: space-around; 
+    margin-top: 20px; 
+    text-align: center; 
 }
 
 .player1-info {
     position: absolute;
-    top: 20px; /* Distance from the top */
-    left: 20px; /* Distance from the left */
-    z-index: 10; /* Ensure it is on top */
-    color: blue; /* Color for the hearts and scores */
+    top: 20px; 
+    left: 20px;
+    z-index: 10; 
+    color: blue; 
     font-size: 20px; 
 }
 
 .player2-info {
     position: absolute;
-    top: 20px; /* Distance from the top */
-    right: 20px; /* Distance from the left */
-    z-index: 10; /* Ensure it is on top */
-    color: red; /* Color for the hearts and scores */
+    top: 20px; 
+    right: 20px;
+    z-index: 10; 
+    color: red; 
     font-size: 20px; 
 }
 .hearts {
     display: flex;
-    justify-content: center; /* Center the hearts */
-    margin: 10px 0; /* Space between hearts and score */
+    justify-content: center; 
+    margin: 10px 0;
 }
 
 .heart {
@@ -141,7 +141,7 @@ body {
 }
 
 .heart.visible {
-    visibility: visible; /* Show heart if player is alive */
+    visibility: visible; 
 }
 
 .menu {
@@ -162,28 +162,27 @@ body {
         opacity: 1;
     }
     50% {
-        transform: scale(1.0); /* Make it larger briefly */
+        transform: scale(1.0); 
         opacity: 0.7;
     }
     100% {
-        transform: scale(0); /* Shrinks to disappear */
-        opacity: 0; /* Fade out */
-    }
+        transform: scale(0); 
+        opacity: 0;     }
 }
 
 .explode {
-    animation: explode 0.5s ease-out forwards; /* Play animation for 0.5 seconds */
+    animation: explode 0.5s ease-out forwards; 
     z-index: 5;
 }
 
 #timer {
-    position: absolute; /* Position the timer absolutely */
-    top: 20px; /* Adjust distance from the top */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Center align the timer */
-    font-size: 20px; /* Adjust font size for visibility */
-    font-weight: bold; /* Make it bold */
-    text-align: center; /* Center text alignment */
+    position: absolute; 
+    top: 20px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    font-size: 20px; 
+    font-weight: bold; 
+    text-align: center; 
 }
 
 .player1-hearts {

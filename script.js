@@ -217,7 +217,7 @@ function explodeBomb(playerIndex, bomb, x, y) {
     }, 500);
 }
 
-// explosion animation
+// explosions  
 function registerExplosionAnimation(x, y) {
     const explosionAnimation = document.createElement('div');
     explosionAnimation.classList.add('explosion-animation');
@@ -371,6 +371,8 @@ function updateScoreDisplay(playerIndex) {
 }
 
 
+// End game
+
 function endGame() {
     const player1Health = playerData[0].health;
     const player2Health = playerData[1].health;
@@ -397,9 +399,9 @@ function endGame() {
     } else {
         alert('Player 2 wins with ' + player2Health + ' hearts remaining!');
     }
+    
 
-    // Stop the game
-    clearInterval(timerInterval); // Clear the timer
+    clearInterval(timerInterval); 
     gameMusic.pause(); 
     menu.style.display = 'block'; 
     grid.style.display = 'none'; 

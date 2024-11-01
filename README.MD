@@ -88,3 +88,10 @@ these will spawn randomly in the map and the player will have to walk on the gri
 PRESENTATION
 
 https://docs.google.com/presentation/d/1afZyIUhx2w9J6JlG66ofdItOuPFEz3EBVrwXq2rpm0U/edit?usp=sharing
+
+
+
+make the animations for the bombs cover all the squares for the xplosion radius
+make the screen bigger and objects more visible 
+overall better styling
+add instructions 
