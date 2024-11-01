@@ -83,4 +83,8 @@ these will spawn randomly in the map and the player will have to walk on the gri
 
 2. increase the amount of bombs that can be placed after an x amount of time. i.e after 1 minute tthe bombs take 2 seconds to explote and players can place up to 2 bombs.
 
-3. 
+
+
+PRESENTATION
+
+https://docs.google.com/presentation/d/1afZyIUhx2w9J6JlG66ofdItOuPFEz3EBVrwXq2rpm0U/edit?usp=sharing
