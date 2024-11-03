@@ -95,3 +95,21 @@ make the animations for the bombs cover all the squares for the xplosion radius
 make the screen bigger and objects more visible 
 overall better styling
 add instructions 
+
+
+## Marcel's Feedback
+
+The documentation is very clear and detailed, which is great. The project structure is well thought out and the tasks are broken down into manageable pieces. The game logic is well defined and the game features are clear. The presentation is also well structured and easy to follow.
+
+### Code structure and organization
+Your code is well organized into functions. You made a sepparation between the game logic and the DOM manipulation. 
+But one of the requirements was to make it Object Oriented. You could have created a class for the player, the bomb, etc. This would have made the code more modular and easier to maintain. 
+
+### File organization
+You could have sepparated the logic into different files. For example, you could have a file for the player, a file for the bomb, etc. This would have made the code easier to read and maintain.
+
+### Unused file
+You have a file called `logger.js` that is empty.
+
+For future projects, I would recommend read carefully the requirements and make sure you follow them. 
+Try to keep it simple and don't try to implement too many features at once. 
